@@ -4,25 +4,34 @@ chrome.runtime.onMessage.addListener(function(request, sender) {
   }
 });
 
-function onWindowLoad() {
+async function onWindowLoad() {
 
   var message = document.querySelector('#message');
+
+  async function getCurrentTab() {
+    let queryOptions = { active: true, lastFocusedWindow: true };
+    let [tab] = await chrome.tabs.query(queryOptions);
+    return tab;
+  }
+  let tab = await getCurrentTab();
   
-  chrome.tabs.executeScript(null, {
-    file: "dictionary.js"
+  chrome.scripting.executeScript(
+  {
+    target: {tabId: tab.id, allFrames: true},
+    files: ['dictionary.js']
   }, function() {
-    // If you try and inject into an extensions page or the webstore/NTP you'll get an error
     if (chrome.runtime.lastError) {
-      message.innerText = 'There was an error injecting script : \n' + chrome.runtime.lastError.message;
+      message.innerText = 'There was an error injecting the script: \n' + chrome.runtime.lastError.message;
     }
   });
 
-  chrome.tabs.executeScript(null, {
-    file: "helper.js"
+  chrome.scripting.executeScript(
+  {
+    target: {tabId: tab.id, allFrames: true},
+    files: ['helper.js']
   }, function() {
-    // If you try and inject into an extensions page or the webstore/NTP you'll get an error
     if (chrome.runtime.lastError) {
-      message.innerText = 'There was an error injecting script : \n' + chrome.runtime.lastError.message;
+      message.innerText = 'There was an error injecting the script: \n' + chrome.runtime.lastError.message;
     }
   });
 

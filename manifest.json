@@ -15,5 +15,5 @@
 		"content_scripts": [{ "js": ["contentScript.js"] }]
 	},
 	"host_permissions": ["<all_urls>"],
-	"permissions": ["tabs"]
+	"permissions": ["tabs","scripting","activeTab"]
 }
