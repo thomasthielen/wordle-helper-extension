@@ -9,7 +9,7 @@
     },
 	"description": "Helps solve the Wordle puzzle.",
 	"manifest_version": 3,
-	"browser_action": {
+	"action": {
 		"default_popup": "popup.html",
 		"default_icon": "/icons/icon32.png",
 		"content_scripts": [{ "js": ["contentScript.js"] }]
