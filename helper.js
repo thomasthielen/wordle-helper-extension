@@ -12,41 +12,50 @@ function DOMtoString(document_root) {
 		if (style != null){
 			try {
 				var body = style;
-				var bodyText = '';
+				var title = '';
+
 				do {
 					body = body.nextSibling;
 					if (body.outerHTML != null){
-						bodyText = body.outerHTML;
+						title = body.outerHTML;
 					}
-				} while (bodyText.substring(0,5) != '<body')
-					
-				// TODO: Implement fool-proof scraping of the html nodes (see above)
-				
-				var gameApp = body.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling;
-				var shadowRoot1 = gameApp.shadowRoot;
+				} while (title.substring(0,5) != '<body')
 
-				var game = shadowRoot1.firstChild.nextSibling.nextSibling.nextSibling.firstChild.nextSibling;
-				var board = game.firstChild.nextSibling.nextSibling.nextSibling.firstChild.nextSibling;
-			
-			
+				var momentSystemModule = body.firstChild.nextSibling.firstChild;
+
+				var gameContainer = momentSystemModule.firstChild;
+				do {
+					gameContainer = gameContainer.nextSibling;
+					if (gameContainer.outerHTML != null){
+						title = gameContainer.outerHTML;
+					}
+				} while (title.substring(0,36) != '<div class="App-module_gameContainer')
+
+				board = gameContainer.firstChild.nextSibling.firstChild.firstChild;
 				var row = board.firstChild;
 			
 				for (let i = 0; i < 6; i++){
-				
-					var tile = row.shadowRoot.firstChild.nextSibling.nextSibling.nextSibling.firstChild;
+					var tile = row.firstChild;
 					for (let j = 0; j < 5; j++){
-					
 						var fields = tile.outerHTML.split('"');
-					
-						content += fields[1] + '_' + fields[3] + '-';
+						var values = fields[11].split(',');
+						if (values[1].length <= 3) {
+							values[1] = values[1].substring(1, values[1].length);
+							values[2] = values[2].substring(1, values[2].length);
+						} else {
+							continue;
+						}
+						content += values[1] + '_' + values[2] + '-';
+
 						tile = tile.nextSibling;
 					}
+
 					row = row.nextSibling;
 				}
 			
 			} catch (e) {
 				console.log(e);
-				return "This script only works on\n\nwww.powerlanguage.co.uk/wordle/\n\nIf it doesn't work there, please open an issue on our github page.";
+				return "This script only works on\n\nwww.nytimes.com/games/wordle/\n\nIf it doesn't work there, please open an issue on our github page.";
 			}
 		}
 		node = node.nextSibling;
@@ -82,13 +91,13 @@ function extractInformation(input){
 		var parts = tile.split('_');
 		switch (parts[1]) {
 			case 'correct':
-				correct[letterPos] = parts[0];
+				correct[letterPos] = parts[0].toLowerCase();
 				break;
-			case 'present':
-				present[letterPos].add(parts[0]);
+			case 'present in another position':
+				present[letterPos].add(parts[0].toLowerCase());
 				break;
 			case 'absent':
-				absent.add(parts[0]);
+				absent.add(parts[0].toLowerCase());
 				break;
 			case 'undefined':
 				return;
